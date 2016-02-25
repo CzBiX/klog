@@ -6,10 +6,11 @@ import org.apache.http.protocol.HttpCoreContext
 import org.apache.http.util.EntityUtils
 import java.util.zip.CRC32
 
-fun HttpContext.getRequest(): HttpRequest? {
-    val context = HttpCoreContext.adapt(this)
-    return context.request
-}
+val HttpContext.request: HttpRequest?
+    get() {
+        val context = HttpCoreContext.adapt(this)
+        return context.request
+    }
 
 class ResponseEtagInterceptor : HttpResponseInterceptor {
     companion object {
@@ -17,9 +18,10 @@ class ResponseEtagInterceptor : HttpResponseInterceptor {
     }
 
     override fun process(response: HttpResponse, context: HttpContext) {
-        val request = context.getRequest() ?: return
-        val entity = response.entity
+        val request = context.request ?: return
+        if (response.statusLine.statusCode != HttpStatus.SC_OK) return
 
+        val entity = response.entity
         if (!response.containsHeader(HttpHeaders.ETAG) && entity.isRepeatable
                 && entity.contentType.value.startsWith("text/")
                 && entity.contentLength < MAX_SIZE_LIMIT) {
@@ -30,7 +32,7 @@ class ResponseEtagInterceptor : HttpResponseInterceptor {
             val value = crc.value
             val etag = java.lang.Long.toHexString(value);
 
-            val clientEtag = request.getLastHeader(HttpHeaders.IF_NONE_MATCH).value
+            val clientEtag = request.getLastHeader(HttpHeaders.IF_NONE_MATCH)?.value
             if (etag.equals(clientEtag)) {
                 response.setStatusCode(HttpStatus.SC_NOT_MODIFIED)
             }

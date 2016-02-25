@@ -9,7 +9,9 @@ import org.apache.http.nio.protocol.HttpAsyncRequestHandler
 import org.apache.http.protocol.HttpContext
 
 abstract class BasicAsyncRequestHandler : HttpAsyncRequestHandler<HttpRequest> {
-    override fun processRequest(request: HttpRequest, context: HttpContext): HttpAsyncRequestConsumer<HttpRequest>? {
+    abstract fun getPattern(): String
+
+    override fun processRequest(request: HttpRequest, context: HttpContext): HttpAsyncRequestConsumer<HttpRequest> {
         return BasicAsyncRequestConsumer()
     }
 
@@ -18,7 +20,5 @@ abstract class BasicAsyncRequestHandler : HttpAsyncRequestHandler<HttpRequest> {
         httpExchange.submitResponse()
     }
 
-    open fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext) {
-        throw NotImplementedError()
-    }
+    abstract fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext)
 }
