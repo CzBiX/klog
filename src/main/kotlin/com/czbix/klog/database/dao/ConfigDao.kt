@@ -24,7 +24,7 @@ object ConfigDao {
     private val SQL_SET = "REPLACE INTO $TABLE_NAME($SCHEMA) VALUES (?, ?)"
     private val SQL_GET = "SELECT $COLUMN_VALUE FROM $TABLE_NAME WHERE $COLUMN_KEY = ?"
 
-    fun getString(key: Config, defVal: String? = null): String? {
+    fun getString(key: ConfigKey, defVal: String? = null): String? {
         return Database.runQuery({runner, conn ->
             runner.query(conn, SQL_GET, ResultSetHandler {
                 if (it.next()) it.getString(1) else defVal
@@ -32,22 +32,22 @@ object ConfigDao {
         })
     }
 
-    fun getInt(key: Config, defVal: Int = 0): Int {
+    fun getInt(key: ConfigKey, defVal: Int = 0): Int {
         val str = getString(key)
         return if (str == null) defVal else str.toInt()
     }
 
-    fun <T> set(key: Config, value: T) {
+    fun <T> set(key: ConfigKey, value: T) {
         Database.runQuery({ runner, conn ->
             innerSet(runner, conn, key, value)
         })
     }
 
-    internal fun <T> innerSet(runner: QueryRunner, conn: Connection, key: Config, value: T) {
+    internal fun <T> innerSet(runner: QueryRunner, conn: Connection, key: ConfigKey, value: T) {
         runner.update(conn, SQL_SET, key.key, value)
     }
 
-    enum class Config(val key: String) {
+    enum class ConfigKey(val key: String) {
         VERSION("version"),
     }
 }

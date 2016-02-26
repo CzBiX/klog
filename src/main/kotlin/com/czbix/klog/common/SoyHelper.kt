@@ -8,11 +8,13 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 object SoyHelper {
-    private const val IS_DEBUG = false
-    private const val TEMPLATE_PATH = "data/template"
+    private val IS_DEBUG = Config.getSoyDebug()
+    private fun getTemplatePath(): String {
+        return Config.TEMPLATE_PATH.toString()
+    }
 
     private val soy: SoyTofu by lazy {
-        init(TEMPLATE_PATH)
+        init(getTemplatePath())
     }
 
     private fun init(path: String): SoyTofu {
@@ -26,7 +28,7 @@ object SoyHelper {
     }
 
     private fun getSoyInstance(): SoyTofu {
-        return if (IS_DEBUG) init(TEMPLATE_PATH) else soy
+        return if (IS_DEBUG) init(getTemplatePath()) else soy
     }
 
     fun render(template: SoyTemplateInfo): String {

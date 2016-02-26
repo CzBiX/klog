@@ -1,5 +1,6 @@
 package com.czbix.klog
 
+import com.czbix.klog.common.Config
 import com.czbix.klog.database.Database
 import com.czbix.klog.handler.IndexHandler
 import com.czbix.klog.handler.NotFoundHandler
@@ -23,6 +24,7 @@ class Main {
     lateinit var httpServer: HttpServer
 
     fun init(args: Array<String>) {
+        Config.readConfig()
         Database.initDatabase()
 
         val ioReacterConfig = IOReactorConfig.custom()
@@ -31,7 +33,7 @@ class Main {
         val handlerMapper = buildHandlerMapper()
 
         httpServer = ServerBootstrap.bootstrap()
-                .setListenerPort(8000)
+                .setListenerPort(Config.getPort())
                 .setIOReactorConfig(ioReacterConfig)
                 .setServerInfo("Klog Server")
                 .addInterceptorLast(ResponseEtagInterceptor())
