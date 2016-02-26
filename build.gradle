@@ -25,7 +25,7 @@ repositories {
 
 task buildSoy(type: JavaExec) {
     description = 'generate Java constants for soy'
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.compileClasspath
     main = 'com.google.template.soy.SoyParseInfoGenerator'
 
     def soyFiles = fileTree("data/template").filter { it.isFile() }.files.path
