@@ -30,12 +30,17 @@ abstract class BaseRequestHandler : HttpAsyncRequestHandler<HttpRequest> {
 
     fun getQueryData(context: HttpContext): Map<String, String> {
         @Suppress("UNCHECKED_CAST")
-        return (context.getAttribute(HttpContextKey.QUERY_DATA.key) as Map<String, String>?).or {
+        val cachedData = context.getAttribute(HttpContextKey.QUERY_DATA.key)
+                as Map<String, String>?
+        return cachedData.or {
             val uri = context.request.requestLine.uri
-            return@or  URLEncodedUtils.parse(uri, Consts.UTF_8)
+            val data = URLEncodedUtils.parse(uri, Consts.UTF_8)
                     .fold(ImmutableMap.builder<String, String>(), { builder, pair ->
                         builder.apply { put(pair.name, pair.value) }
                     }).build()
+            context.setAttribute(HttpContextKey.QUERY_DATA.key, data)
+
+            return@or data
         }
     }
 }
