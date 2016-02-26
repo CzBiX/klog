@@ -4,7 +4,7 @@ import com.czbix.klog.common.Config
 import com.czbix.klog.database.dao.ConfigDao
 import com.czbix.klog.database.dao.ConfigDao.ConfigKey
 import com.czbix.klog.database.dao.PostDao
-import com.czbix.klog.utils.IoUtils.use
+import com.czbix.klog.utils.use
 import org.apache.commons.dbutils.QueryRunner
 import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource

@@ -20,7 +20,7 @@ object PostDao {
         @Suppress("ConvertToStringTemplate")
         runner.update(conn, "CREATE TABLE $TABLE_NAME (" +
                 "$COLUMN_ID INTEGER PRIMARY KEY," +
-                "$COLUMN_TITLE TEXT NOT NULL," +
+                "$COLUMN_TITLE TEXT NOT NULL COLLATE NOCASE," +
                 "$COLUMN_TEXT TEXT NOT NULL)")
         runner.update(conn, "CREATE INDEX ${TABLE_NAME}_title ON $TABLE_NAME ($COLUMN_TITLE)")
     }

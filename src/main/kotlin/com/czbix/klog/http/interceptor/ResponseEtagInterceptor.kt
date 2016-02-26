@@ -6,10 +6,9 @@ import org.apache.http.protocol.HttpCoreContext
 import org.apache.http.util.EntityUtils
 import java.util.zip.CRC32
 
-val HttpContext.request: HttpRequest?
+val HttpContext.request: HttpRequest
     get() {
-        val context = HttpCoreContext.adapt(this)
-        return context.request
+        return getAttribute(HttpCoreContext.HTTP_REQUEST) as HttpRequest
     }
 
 class ResponseEtagInterceptor : HttpResponseInterceptor {
@@ -18,7 +17,7 @@ class ResponseEtagInterceptor : HttpResponseInterceptor {
     }
 
     override fun process(response: HttpResponse, context: HttpContext) {
-        val request = context.request ?: return
+        val request = context.request
         if (response.statusLine.statusCode != HttpStatus.SC_OK) return
 
         val entity = response.entity

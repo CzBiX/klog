@@ -4,6 +4,7 @@ import com.czbix.klog.common.Config
 import com.czbix.klog.database.Database
 import com.czbix.klog.handler.IndexHandler
 import com.czbix.klog.handler.NotFoundHandler
+import com.czbix.klog.handler.PostHandler
 import com.czbix.klog.http.interceptor.ResponseEtagInterceptor
 import org.apache.http.impl.nio.bootstrap.HttpServer
 import org.apache.http.impl.nio.bootstrap.ServerBootstrap
@@ -47,6 +48,7 @@ class Main {
 
         val handlers = arrayOf(
                 IndexHandler(),
+                PostHandler(),
                 NotFoundHandler()
         )
 

@@ -1,0 +1,10 @@
+{namespace klog}
+
+{template .post}
+    {@param post: [id: int, title: string, text: string]}
+    {call klog.header /}
+        <h1>{$post.title}</h1>
+
+        {$post.text}
+    {call klog.footer /}
+{/template}

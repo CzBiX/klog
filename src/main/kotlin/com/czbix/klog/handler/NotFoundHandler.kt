@@ -8,7 +8,7 @@ import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.protocol.HttpContext
 
-class NotFoundHandler : BasicAsyncRequestHandler() {
+class NotFoundHandler : BaseRequestHandler() {
     override fun getPattern() = "/*"
 
     override fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext) {
