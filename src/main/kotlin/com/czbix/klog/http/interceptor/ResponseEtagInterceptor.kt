@@ -1,15 +1,11 @@
 package com.czbix.klog.http.interceptor
 
+import com.czbix.klog.http.request
 import org.apache.http.*
 import org.apache.http.protocol.HttpContext
 import org.apache.http.protocol.HttpCoreContext
 import org.apache.http.util.EntityUtils
 import java.util.zip.CRC32
-
-val HttpContext.request: HttpRequest
-    get() {
-        return getAttribute(HttpCoreContext.HTTP_REQUEST) as HttpRequest
-    }
 
 class ResponseEtagInterceptor : HttpResponseInterceptor {
     companion object {
@@ -17,11 +13,12 @@ class ResponseEtagInterceptor : HttpResponseInterceptor {
     }
 
     override fun process(response: HttpResponse, context: HttpContext) {
-        val request = context.request
         if (response.statusLine.statusCode != HttpStatus.SC_OK) return
+        val request = context.request
 
         val entity = response.entity
-        if (!response.containsHeader(HttpHeaders.ETAG) && entity.isRepeatable
+        if (!response.containsHeader(HttpHeaders.ETAG)
+                && entity.isRepeatable
                 && entity.contentType.value.startsWith("text/")
                 && entity.contentLength < MAX_SIZE_LIMIT) {
             val crc = CRC32()
