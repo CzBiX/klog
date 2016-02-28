@@ -1,0 +1,22 @@
+{namespace klog}
+
+{template .sign_in}
+    {@param msg: string|null}
+    {call klog.header /}
+    {if (isNonnull($msg)) }
+    {$msg}
+    {/if}
+    <form method="post">
+        <input type="text" name="username"><br/>
+        <input type="password" name="password">
+        <input type="submit">
+    </form>
+    {call klog.footer /}
+{/template}
+
+{template .signed}
+    {@param user: [displayName: string]}
+    {call klog.header /}
+    Welcome back, {$user.displayName}.
+    {call klog.footer /}
+{/template}

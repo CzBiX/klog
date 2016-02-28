@@ -1,2 +1,7 @@
+host=localhost
 port=8000
+
 soy.debug=True
+
+cookie.is_secure=False
+cookie.secure.key=2333

@@ -11,9 +11,9 @@ import org.apache.http.protocol.HttpContext
 class PostHandler : BaseRequestHandler() {
     override fun getPattern() = "/post/*"
 
-    override fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext) {
+    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
         val id = request.requestLine.uri.substringAfterLast('/', "").toInt()
-        val post = PostDao.get(id) ?: return NotFoundHandler().handle(request, response, context)
+        val post = PostDao.get(id) ?: return NotFoundHandler().get(request, response, context)
         val postData = post.let {
             mapOf(
                     "id" to it.id,

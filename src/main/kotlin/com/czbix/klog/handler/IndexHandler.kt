@@ -13,7 +13,7 @@ import org.apache.http.protocol.HttpContext
 class IndexHandler : BaseRequestHandler() {
     override fun getPattern() = "/"
 
-    override fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext) {
+    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
         val posts = PostDao.getAll().map {
             mapOf(
                     "id" to it.id,

@@ -7,7 +7,7 @@ import org.apache.http.protocol.HttpCoreContext
 import org.apache.http.util.EntityUtils
 import java.util.zip.CRC32
 
-class ResponseEtagInterceptor : HttpResponseInterceptor {
+class ResponseEtag : HttpResponseInterceptor {
     companion object {
         val MAX_SIZE_LIMIT = 8192
     }

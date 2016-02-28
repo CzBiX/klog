@@ -4,6 +4,7 @@ import com.czbix.klog.common.Config
 import com.czbix.klog.database.dao.ConfigDao
 import com.czbix.klog.database.dao.ConfigDao.ConfigKey
 import com.czbix.klog.database.dao.PostDao
+import com.czbix.klog.database.dao.UserDao
 import com.czbix.klog.utils.use
 import org.apache.commons.dbutils.QueryRunner
 import org.sqlite.SQLiteConfig
@@ -58,6 +59,7 @@ object Database {
         runQuery({ runner, conn ->
             ConfigDao.createTable(runner, conn)
             PostDao.createTable(runner, conn)
+            UserDao.createTable(runner, conn)
 
             ConfigDao.innerSet(runner, conn, ConfigKey.VERSION, DATABASE_VERSION)
         }, false)

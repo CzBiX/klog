@@ -11,7 +11,7 @@ object Config {
     val TEMPLATE_PATH = DATA_PATH.resolve("template")
     lateinit var props: Properties
 
-    fun readConfig() {
+    fun initConfig() {
         Files.newInputStream(CONFIG_PATH).use { fis ->
             props = Properties().apply {
                 load(fis)
@@ -31,11 +31,13 @@ object Config {
         return getString(key).toInt()
     }
 
-    fun getPort(): Int {
-        return getInt("port")
-    }
+    fun getHost(): String = getString("host")
 
-    fun getSoyDebug(): Boolean {
-        return getBool("soy.debug")
-    }
+    fun getPort(): Int = getInt("port")
+
+    fun isSoyDebug(): Boolean = getBool("soy.debug")
+
+    fun isCookieSecure(): Boolean = getBool("cookie.is_secure")
+
+    fun getCookieSecureKey(): String = getString("cookie.secure.key")
 }

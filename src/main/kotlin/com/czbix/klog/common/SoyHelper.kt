@@ -9,7 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 object SoyHelper {
-    private val IS_DEBUG = Config.getSoyDebug()
+    private val IS_DEBUG = Config.isSoyDebug()
     private fun getTemplatePath(): String {
         return Config.TEMPLATE_PATH.toString()
     }
@@ -39,18 +39,22 @@ object SoyHelper {
         return builder.build()
     }
 
+    fun newRenderer(template: SoyTemplateInfo): SoyTofu.Renderer {
+        return soy.newRenderer(template)
+    }
+
     fun render(template: SoyTemplateInfo): String {
-        return soy.newRenderer(template).render()
+        return newRenderer(template).render()
     }
 
     fun render(template: SoyTemplateInfo, name: String, value: Any): String {
-        return soy.newRenderer(template)
+        return newRenderer(template)
                 .setData(SoyMapData(name, value))
                 .render()
     }
 
     fun render(template: SoyTemplateInfo, data: Map<String, Any>): String {
-        return soy.newRenderer(template)
+        return newRenderer(template)
                 .setData(data)
                 .render()
     }

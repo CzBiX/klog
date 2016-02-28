@@ -11,7 +11,7 @@ import org.apache.http.protocol.HttpContext
 class NotFoundHandler : BaseRequestHandler() {
     override fun getPattern() = "/*"
 
-    override fun handle(request: HttpRequest, response: HttpResponse, context: HttpContext) {
+    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
         response.setStatusCode(HttpStatus.SC_NOT_FOUND)
         response.entity = NStringEntityEx.fromHtml(SoyHelper.render(NotFoundSoyInfo.NOT_FOUND))
     }
