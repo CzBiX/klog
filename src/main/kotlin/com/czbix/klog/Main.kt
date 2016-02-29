@@ -1,28 +1,21 @@
 package com.czbix.klog
 
 import com.czbix.klog.common.Config
-import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.database.Database
 import com.czbix.klog.handler.IndexHandler
 import com.czbix.klog.handler.NotFoundHandler
 import com.czbix.klog.handler.PostHandler
 import com.czbix.klog.handler.UserHandler
+import com.czbix.klog.handler.backend.AdminHandler
 import com.czbix.klog.http.interceptor.RequestCookies
 import com.czbix.klog.http.interceptor.ResponseCookies
 import com.czbix.klog.http.interceptor.ResponseEtag
 import com.czbix.klog.http.user
-import com.czbix.klog.utils.or
-import com.google.template.soy.data.SoyAbstractRecord
-import com.google.template.soy.data.SoyMapData
-import com.google.template.soy.data.SoyRecord
-import com.google.template.soy.data.SoyValue
-import com.google.template.soy.data.restricted.StringData
-import org.apache.http.HttpRequest
+import com.czbix.klog.template.SoyHelper
 import org.apache.http.impl.nio.bootstrap.HttpServer
 import org.apache.http.impl.nio.bootstrap.ServerBootstrap
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper
-import org.apache.http.protocol.HttpContext
 import java.util.concurrent.TimeUnit
 
 class Main {
@@ -78,7 +71,9 @@ class Main {
                 IndexHandler(),
                 PostHandler(),
                 UserHandler(),
-                NotFoundHandler()
+                NotFoundHandler(),
+                // backend handler
+                AdminHandler()
         )
 
         handlers.forEach { handlerMapper.register(it.getPattern(), it) }

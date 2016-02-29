@@ -33,7 +33,7 @@ object SoyHelper {
             builder.setSoyAstCache(SoyAstCache())
         }
 
-        Files.list(Paths.get(path))
+        Files.walk(Paths.get(path))
                 .map { it.toFile() }
                 .filter { it.isFile && it.name.endsWith(".soy") }
                 .forEach {

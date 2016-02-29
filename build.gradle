@@ -31,7 +31,7 @@ task buildSoy(type: JavaExec) {
     def soyFiles = fileTree("data/template").filter { it.isFile() }.files.path
     def packageName = "com.czbix.klog.soy"
     args = ["--srcs", String.join(',', soyFiles), "--outputDirectory", "src/main/java/" + packageName.replace('.', '/'),
-            "--javaClassNameSource", "filename", "--javaPackage", packageName]
+            "--javaClassNameSource", "namespace", "--javaPackage", packageName]
 }
 
 dependencies {
