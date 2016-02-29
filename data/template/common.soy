@@ -1,15 +1,21 @@
 {namespace klog}
 
 {template .header}
-<!DOCTYPE html>
-    <html>
-    <head>
-        <title>Klog</title>
-    </head>
-    <body>
+    {@param? title: string}
+    <!DOCTYPE html>
+        <html>
+        <head>
+            <title>{$title ?: 'Klog'}</title>
+        </head>
+        <body>
 {/template}
 
 {template .footer}
+    {if $ij.user}
+        <p>
+            signed user: {$ij.user.displayName}
+        </p>
+    {/if}
     </body>
     </html>
 {/template}

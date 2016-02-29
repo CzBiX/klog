@@ -1,6 +1,10 @@
-{namespace klog}
+{namespace klog.notFound}
 
-{template .not_found}
-  404
+{template .notFound}
+    {call klog.header}
+        {param title: 'Not found' /}
+    {/call}
+    404
+    {call klog.footer /}
 {/template}
 

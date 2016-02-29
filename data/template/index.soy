@@ -1,8 +1,10 @@
-{namespace klog}
+{namespace klog.index}
 
 {template .index}
     {@param posts: list<[id: int, title: string, text: string]>}
-    {call klog.header /}
+    {call klog.header}
+        {param title: 'Index' /}
+    {/call}
         <h1>Hello world!</h1>
 
         {if length($posts) > 0}

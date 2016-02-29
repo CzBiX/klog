@@ -1,7 +1,7 @@
 package com.czbix.klog
 
 import com.czbix.klog.common.Config
-import com.czbix.klog.common.SoyHelper
+import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.database.Database
 import com.czbix.klog.handler.IndexHandler
 import com.czbix.klog.handler.NotFoundHandler
@@ -13,6 +13,7 @@ import com.czbix.klog.http.interceptor.ResponseEtag
 import com.czbix.klog.http.user
 import com.czbix.klog.utils.or
 import com.google.template.soy.data.SoyAbstractRecord
+import com.google.template.soy.data.SoyMapData
 import com.google.template.soy.data.SoyRecord
 import com.google.template.soy.data.SoyValue
 import com.google.template.soy.data.restricted.StringData
@@ -39,6 +40,7 @@ class Main {
     fun init(args: Array<String>) {
         Config.initConfig()
         Database.initDatabase()
+        initSoyHelper()
 
         val ioReactorConfig = IOReactorConfig.custom().run {
             setSoReuseAddress(true)
@@ -60,6 +62,12 @@ class Main {
             setHandlerMapper(handlerMapper)
             setExceptionLogger(org.apache.http.ExceptionLogger.STD_ERR)
             create()
+        }
+    }
+
+    fun initSoyHelper() {
+        SoyHelper.addIjDataHook("user") {
+            it.user?.toSoy()
         }
     }
 

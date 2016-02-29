@@ -1,6 +1,6 @@
 package com.czbix.klog.handler
 
-import com.czbix.klog.common.SoyHelper
+import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.http.NStringEntityEx
 import com.czbix.klog.soy.PostSoyInfo

@@ -2,6 +2,8 @@ package com.czbix.klog.database.dao
 
 import com.czbix.klog.database.Database.runQuery
 import com.czbix.klog.utils.or
+import com.google.template.soy.data.SoyMapData
+import com.google.template.soy.data.SoyValue
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
 import java.sql.Connection
@@ -56,6 +58,11 @@ object UserDao {
         fun validatePwd(pwd: String): Boolean {
             return password.equals(pwd)
         }
+
+        fun toSoy(): SoyValue = SoyMapData(mapOf(
+                "username" to username,
+                "displayName" to displayName
+        ))
     }
 
     private class UserResultSetHandler : ResultSetHandler<User?> {

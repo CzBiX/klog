@@ -1,10 +1,13 @@
-package com.czbix.klog.common
+package com.czbix.klog.template
 
+import com.czbix.klog.common.Config
 import com.google.template.soy.SoyFileSet
 import com.google.template.soy.data.SoyMapData
+import com.google.template.soy.data.SoyValue
 import com.google.template.soy.parseinfo.SoyTemplateInfo
 import com.google.template.soy.shared.SoyAstCache
 import com.google.template.soy.tofu.SoyTofu
+import org.apache.http.protocol.HttpContext
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -14,6 +17,7 @@ object SoyHelper {
         return Config.TEMPLATE_PATH.toString()
     }
     private val soyFileSet = init(getTemplatePath())
+    private val ijDataHook = mutableMapOf<String, (HttpContext) -> SoyValue?>()
 
     private val _soy by lazy {
         soyFileSet.compileToTofu()
@@ -43,6 +47,11 @@ object SoyHelper {
         return soy.newRenderer(template)
     }
 
+    fun newRenderer(template: SoyTemplateInfo, context: HttpContext): SoyTofu.Renderer {
+        val ijData = SoyMapData(ijDataHook.map { it.key to it.value(context)}.toMap())
+        return soy.newRenderer(template).setIjData(ijData)
+    }
+
     fun render(template: SoyTemplateInfo): String {
         return newRenderer(template).render()
     }
@@ -58,4 +67,10 @@ object SoyHelper {
                 .setData(data)
                 .render()
     }
+
+    fun addIjDataHook(name: String, hook: (HttpContext) -> SoyValue?) {
+        ijDataHook[name] = hook
+    }
+
+    fun SoyTofu.Renderer.setData(name: String, value: SoyValue) = setData(mapOf(name to value))
 }

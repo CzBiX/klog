@@ -1,9 +1,15 @@
-{namespace klog}
+{namespace klog.user}
+
+{template .header}
+    {call klog.header}
+        {param title: 'User' /}
+    {/call}
+{/template}
 
 {template .sign_in}
-    {@param msg: string|null}
-    {call klog.header /}
-    {if (isNonnull($msg)) }
+    {@param? msg: string}
+    {call .header /}
+    {if $msg}
     {$msg}
     {/if}
     <form method="post">
@@ -16,7 +22,7 @@
 
 {template .signed}
     {@param user: [displayName: string]}
-    {call klog.header /}
+    {call .header /}
     Welcome back, {$user.displayName}.
     {call klog.footer /}
 {/template}
