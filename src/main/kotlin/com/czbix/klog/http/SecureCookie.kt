@@ -14,7 +14,7 @@ object SecureCookie {
     private val KEY = Config.getCookieSecureKey()
     private val SPEC = SecretKeySpec(KEY.toByteArray(), ALGORITHM)
 
-    fun createSign(ver: String, time: Long, name: String, value: String): Pair<String, String> {
+    fun createSign(ver: String, time: Long, name: String, value: String): String {
         val toSign = arrayOf(
                 ver,
                 time.toString(),
@@ -27,7 +27,7 @@ object SecureCookie {
         mac.init(SPEC)
         val sign = Hex.encodeHexString(mac.doFinal(toSign.toByteArray()))
 
-        return toSign to sign
+        return sign
     }
 }
 
@@ -42,20 +42,18 @@ var HttpCookie.secureValue: String?
      * The fields are:
      * - format version (i.e. 1; no length prefix)
      * - timestamp (integer seconds since epoch)
-     * - name (not encoded; assumed to be ~alphanumeric)
      * - value (not encoded; assumed to be ~alphanumeric)
      * - signature (hex-encoded; no length prefix)
      */
     get() {
         val parts = value.split('|')
-        if (parts.size != 5) return null
+        if (parts.size != 4) return null
 
-        val (version, timestamp, name, value, signature) = parts
+        val (version, timestamp, value, signature) = parts
         if (version != "1") return null
         if (timestamp.toLong() > now()) return null
-        if (name != this.name) return null
 
-        val sign = SecureCookie.createSign(version, timestamp.toLong(), name, value).second
+        val sign = SecureCookie.createSign(version, timestamp.toLong(), name, value)
         if (signature != sign) return null
 
         return value
@@ -67,6 +65,12 @@ var HttpCookie.secureValue: String?
 
             val time = TimeUnit.MILLISECONDS.toSeconds(now()) + maxAge
 
-            value = SecureCookie.createSign("1", time, name, newValue).run { first + second }
+            val actValue = arrayOf(
+                    "1",
+                    time.toString(),
+                    value,
+                    "" // keep for sign
+            ).joinToString("|")
+            value = actValue + SecureCookie.createSign("1", time, name, newValue)
         }
     }
