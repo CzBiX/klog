@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 group 'com.czbix.klog'
 version '1.0-SNAPSHOT'
 
@@ -28,10 +30,21 @@ task buildSoy(type: JavaExec) {
     classpath = sourceSets.main.compileClasspath
     main = 'com.google.template.soy.SoyParseInfoGenerator'
 
-    def soyFiles = fileTree("data/template").filter { it.isFile() }.files.path
     def packageName = "com.czbix.klog.soy"
-    args = ["--srcs", String.join(',', soyFiles), "--outputDirectory", "src/main/java/" + packageName.replace('.', '/'),
-            "--javaClassNameSource", "namespace", "--javaPackage", packageName]
+    def outputPath = "src/main/java/" + packageName.replace('.', '/')
+    delete outputPath
+
+    def templates = fileTree("data/template")
+    def templateDirPath = templates.dir.path
+    def basePath = Paths.get(templateDirPath)
+
+    def soyFiles = templates
+            .filter { it.isFile() }.files.path
+            .collect { basePath.relativize(Paths.get(it)).toString() }
+    args = ["--inputPrefix", templateDirPath, "--srcs", String.join(',', soyFiles),
+            "--outputDirectory", outputPath,
+            "--javaClassNameSource", "namespace",
+            "--javaPackage", packageName]
 }
 
 dependencies {

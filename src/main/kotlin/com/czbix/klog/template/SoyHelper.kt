@@ -1,7 +1,9 @@
 package com.czbix.klog.template
 
 import com.czbix.klog.common.Config
+import com.google.inject.Guice
 import com.google.template.soy.SoyFileSet
+import com.google.template.soy.SoyModule
 import com.google.template.soy.data.SoyMapData
 import com.google.template.soy.data.SoyValue
 import com.google.template.soy.parseinfo.SoyTemplateInfo
@@ -28,7 +30,9 @@ object SoyHelper {
         }
 
     private fun init(path: String): SoyFileSet {
-        val builder = SoyFileSet.builder()
+        val injector = Guice.createInjector(SoyModule(), SoyCustomConverterModule())
+        val builder = injector.getInstance(SoyFileSet.Builder::class.java)
+
         if (IS_DEBUG) {
             builder.setSoyAstCache(SoyAstCache())
         }
@@ -72,5 +76,5 @@ object SoyHelper {
         ijDataHook[name] = hook
     }
 
-    fun SoyTofu.Renderer.setData(name: String, value: SoyValue) = setData(mapOf(name to value))
+    fun SoyTofu.Renderer.setData(name: String, value: Any) = setData(mapOf(name to value))
 }

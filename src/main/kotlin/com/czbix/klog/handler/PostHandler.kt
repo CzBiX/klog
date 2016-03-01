@@ -1,12 +1,12 @@
 package com.czbix.klog.handler
 
-import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.http.NStringEntityEx
-import com.czbix.klog.soy.PostSoyInfo
+import com.czbix.klog.template.SoyHelper
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
+import com.czbix.klog.soy.Post1SoyInfo as PostSoyInfo
 
 class PostHandler : BaseRequestHandler() {
     override fun getPattern() = "/post/*"

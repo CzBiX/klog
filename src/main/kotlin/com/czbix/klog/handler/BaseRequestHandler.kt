@@ -25,6 +25,9 @@ abstract class BaseRequestHandler : HttpAsyncRequestHandler<HttpRequest> {
         try {
             handleRequest(request, response, context)
         } catch (e: Exception) {
+            e.printStackTrace() // TODO: remove this line
+
+            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
             response.entity = NStringEntityEx.fromText(e.toString())
         }
         httpExchange.submitResponse()

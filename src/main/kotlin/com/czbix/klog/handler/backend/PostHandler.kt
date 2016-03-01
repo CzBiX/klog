@@ -5,7 +5,6 @@ import com.czbix.klog.http.NStringEntityEx
 import com.czbix.klog.http.postData
 import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.template.SoyHelper.setData
-import com.google.template.soy.data.SoyListData
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
@@ -21,7 +20,7 @@ class PostHandler : BackendHandler() {
                 response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.ADD_POST, context).render())
             "list" ->
                 response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.LIST_POST, context)
-                        .setData("posts", SoyListData(PostDao.getAll())).render())
+                        .setData("posts", PostDao.getAll()).render())
             else -> throw NotImplementedError("$action action not implemented")
         }
     }
