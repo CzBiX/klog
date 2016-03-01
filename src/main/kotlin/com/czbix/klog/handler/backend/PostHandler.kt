@@ -4,10 +4,12 @@ import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.http.NStringEntityEx
 import com.czbix.klog.http.postData
 import com.czbix.klog.template.SoyHelper
+import com.czbix.klog.template.SoyHelper.setData
+import com.google.template.soy.data.SoyListData
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
-import com.czbix.klog.soy.Post1SoyInfo as PostSoyInfo
+import com.czbix.klog.soy.Post2SoyInfo as PostSoyInfo
 
 class PostHandler : BackendHandler() {
     override fun getPattern() = "/admin/post/*"
@@ -17,7 +19,10 @@ class PostHandler : BackendHandler() {
         when (action) {
             "add" ->
                 response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.ADD_POST, context).render())
-            else -> throw NotImplementedError()
+            "list" ->
+                response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.LIST_POST, context)
+                        .setData("posts", SoyListData(PostDao.getAll())).render())
+            else -> throw NotImplementedError("$action action not implemented")
         }
     }
 
@@ -32,10 +37,11 @@ class PostHandler : BackendHandler() {
 
         PostDao.insert(title!!, text)
 
-        redirect(response, "/")
+        redirect(response, "/admin/post/")
     }
 
     fun getAction(request: HttpRequest): String {
-        return request.requestLine.uri.substringAfterLast('/')
+        val uri = request.requestLine.uri
+        return if (uri.endsWith('/')) "list" else uri.substringAfterLast('/')
     }
 }

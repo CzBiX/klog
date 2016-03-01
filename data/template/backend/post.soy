@@ -1,5 +1,22 @@
 {namespace klog.backend.post}
 
+{template .listPost}
+    {@param posts: list<[id: int, title: string, text: string]>}
+    {call klog.header}
+        {param title: 'Posts' /}
+    {/call}
+        {if length($posts) > 0}
+            <ol>
+            {foreach $post in $posts}
+                <li><a href="/post/{$post.id}">{$post.title}</a></li>
+            {/foreach}
+            </ol>
+        {else}
+            <p>No posts!</p>
+        {/if}
+    {call klog.footer /}
+{/template}
+
 {template .addPost}
     {call klog.header}
         {param title: 'Add post' /}
