@@ -1,0 +1,13 @@
+{namespace klog.backend.post}
+
+{template .addPost}
+    {call klog.header}
+        {param title: 'Add post' /}
+    {/call}
+    <form method="post">
+        <input type="text" name="title"><br>
+        <textarea type="text" name="text"></textarea><br>
+        <input type="submit">
+    </form>
+    {call klog.footer /}
+{/template}

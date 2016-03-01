@@ -4,6 +4,7 @@ import com.czbix.klog.database.Database
 import com.google.common.collect.ImmutableList
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
+import org.apache.commons.dbutils.handlers.AbstractListHandler
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -27,6 +28,7 @@ object PostDao {
 
     private val SQL_GET_BY_ID = "SELECT $SCHEMA FROM $TABLE_NAME WHERE $COLUMN_ID = ?"
     private val SQL_GET_ALL = "SELECT $SCHEMA FROM $TABLE_NAME"
+    private val SQL_INSERT = "INSERT INTO $TABLE_NAME($COLUMN_TITLE, $COLUMN_TEXT) VALUES(?, ?)"
 
     fun get(id: Int): Post? {
         return Database.runQuery({runner, conn ->
@@ -37,6 +39,12 @@ object PostDao {
     fun getAll(): List<Post> {
         return Database.runQuery({runner, conn ->
             runner.query(conn, SQL_GET_ALL, PostListResultSetHandler.instance)
+        })
+    }
+
+    fun insert(title: String, text: String?): Int {
+        return Database.runQuery({runner, conn ->
+            runner.insert(conn, SQL_INSERT, ResultSetHandler<Int> { it.getInt(1) }, title, text)
         })
     }
 
@@ -54,16 +62,9 @@ object PostDao {
         }
     }
 
-    class PostListResultSetHandler : ResultSetHandler<List<Post>> {
-        override fun handle(rs: ResultSet): List<Post> {
-            val builder = ImmutableList.builder<Post>()
-
-            while (rs.next()) {
-                builder.add(Post(rs.getInt(1), rs.getString(2), rs.getString(3)))
-
-            }
-
-            return builder.build()
+    class PostListResultSetHandler : AbstractListHandler<Post>() {
+        override fun handleRow(rs: ResultSet): Post {
+            return Post(rs.getInt(1), rs.getString(2), rs.getString(3))
         }
 
         companion object {

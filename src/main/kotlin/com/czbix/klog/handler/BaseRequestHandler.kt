@@ -22,7 +22,11 @@ abstract class BaseRequestHandler : HttpAsyncRequestHandler<HttpRequest> {
 
     override fun handle(request: HttpRequest, httpExchange: HttpAsyncExchange, context: HttpContext) {
         val response = httpExchange.response
-        handleRequest(request, response, context)
+        try {
+            handleRequest(request, response, context)
+        } catch (e: Exception) {
+            response.entity = NStringEntityEx.fromText(e.toString())
+        }
         httpExchange.submitResponse()
     }
 

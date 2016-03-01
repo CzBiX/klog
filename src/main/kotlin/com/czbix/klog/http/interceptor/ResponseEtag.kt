@@ -17,10 +17,11 @@ class ResponseEtag : HttpResponseInterceptor {
         val request = context.request
 
         val entity = response.entity
-        if (!response.containsHeader(HttpHeaders.ETAG)
+        if (entity != null
                 && entity.isRepeatable
                 && entity.contentType.value.startsWith("text/")
-                && entity.contentLength < MAX_SIZE_LIMIT) {
+                && entity.contentLength < MAX_SIZE_LIMIT
+                && !response.containsHeader(HttpHeaders.ETAG)) {
             val crc = CRC32()
             val buf = EntityUtils.toByteArray(entity)
             crc.update(buf)

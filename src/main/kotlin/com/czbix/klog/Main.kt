@@ -7,6 +7,7 @@ import com.czbix.klog.handler.NotFoundHandler
 import com.czbix.klog.handler.PostHandler
 import com.czbix.klog.handler.UserHandler
 import com.czbix.klog.handler.backend.AdminHandler
+import com.czbix.klog.handler.backend.PostHandler as BackendPostHandler
 import com.czbix.klog.http.interceptor.RequestCookies
 import com.czbix.klog.http.interceptor.ResponseCookies
 import com.czbix.klog.http.interceptor.ResponseEtag
@@ -73,7 +74,8 @@ class Main {
                 UserHandler(),
                 NotFoundHandler(),
                 // backend handler
-                AdminHandler()
+                AdminHandler(),
+                BackendPostHandler()
         )
 
         handlers.forEach { handlerMapper.register(it.getPattern(), it) }

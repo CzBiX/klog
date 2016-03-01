@@ -9,16 +9,16 @@ class NStringEntityEx(html: String, contentType: ContentType) : NStringEntity(ht
         val CONTENT_TYPE_HTML = ContentType.create("text/html", Consts.UTF_8)
         val CONTENT_TYPE_TEXT = ContentType.create("text/plain", Consts.UTF_8)
 
-        fun fromText(html: String): NStringEntity {
-            return NStringEntity(html, CONTENT_TYPE_TEXT)
+        fun fromText(text: String): NStringEntity {
+            return NStringEntity(text, CONTENT_TYPE_TEXT)
         }
 
         fun fromHtml(html: String): NStringEntity {
             return NStringEntity(html, CONTENT_TYPE_HTML)
         }
 
-        fun fromJson(html: String): NStringEntity {
-            return NStringEntity(html, ContentType.APPLICATION_JSON)
+        fun fromJson(json: String): NStringEntity {
+            return NStringEntity(json, ContentType.APPLICATION_JSON)
         }
     }
 }
