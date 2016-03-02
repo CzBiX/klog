@@ -9,6 +9,7 @@ class SoyCustomConverterModule : AbstractModule() {
     override fun configure() {
     }
 
+    @Suppress("unused")
     @Provides
     @Singleton
     private fun provideSoyCustomConverter(): List<SoyCustomValueConverter> {

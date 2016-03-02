@@ -2,10 +2,16 @@ package com.czbix.klog.template
 
 import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.database.dao.UserDao
+import com.google.template.soy.data.SoyCustomValueConverter
 import com.google.template.soy.data.SoyMapData
+import com.google.template.soy.data.SoyValueConverter
+import com.google.template.soy.data.SoyValueProvider
+import java.lang.reflect.Method
 
-class SoyCustomConverter : com.google.template.soy.data.SoyCustomValueConverter {
-    override fun convert(converter: com.google.template.soy.data.SoyValueConverter, obj: Any): com.google.template.soy.data.SoyValueProvider? {
+class SoyCustomConverter : SoyCustomValueConverter {
+    private val classFieldsCache = hashMapOf<Class<*>, List<Method>>()
+
+    override fun convert(converter: SoyValueConverter, obj: Any): SoyValueProvider? {
         return when (obj) {
             is PostDao.Post -> SoyMapData(getFieldMap(obj))
             is UserDao.User -> SoyMapData(getFieldMap(obj))
@@ -14,8 +20,10 @@ class SoyCustomConverter : com.google.template.soy.data.SoyCustomValueConverter 
     }
 
     private inline fun <reified T: Any> getFieldMap(obj: T): Map<String, Any> {
-        val fields = T::class.java.declaredMethods
-                .filter { it.name.startsWith("get") && it.parameters.isEmpty() }
+        val cls = T::class.java
+        val fields = classFieldsCache.getOrPut(cls, {
+            cls.declaredMethods.filter { it.name.startsWith("get") && it.parameters.isEmpty() }
+        })
         if (fields.isEmpty()) {
             return mapOf()
         }
