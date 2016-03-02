@@ -1,14 +1,14 @@
 package com.czbix.klog.handler
 
-import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.http.NStringEntityEx
-import com.czbix.klog.soy.IndexSoyInfo
-import com.czbix.klog.soy.IndexSoyInfo.IndexSoyTemplateInfo
-import com.google.template.soy.data.SoyMapData
+import com.czbix.klog.soy.Index2SoyInfo.IndexSoyTemplateInfo
+import com.czbix.klog.template.SoyHelper
+import com.czbix.klog.template.SoyHelper.setData
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
+import com.czbix.klog.soy.Index2SoyInfo as IndexSoyInfo
 
 
 class IndexHandler : BaseRequestHandler() {
@@ -23,7 +23,7 @@ class IndexHandler : BaseRequestHandler() {
             )
         }
 
-        val render = SoyHelper.newRenderer(IndexSoyInfo.INDEX, context).setData(mapOf(IndexSoyTemplateInfo.POSTS to posts))
+        val render = SoyHelper.newRenderer(IndexSoyInfo.INDEX, context).setData(IndexSoyTemplateInfo.POSTS, posts)
         response.entity = NStringEntityEx.fromHtml(render.render())
     }
 }

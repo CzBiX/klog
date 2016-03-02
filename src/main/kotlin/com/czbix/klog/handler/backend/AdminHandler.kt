@@ -1,7 +1,7 @@
 package com.czbix.klog.handler.backend
 
 import com.czbix.klog.http.NStringEntityEx
-import com.czbix.klog.soy.BackendSoyInfo
+import com.czbix.klog.soy.Index1SoyInfo as BackendSoyInfo
 import com.czbix.klog.template.SoyHelper
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse

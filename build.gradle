@@ -35,15 +35,16 @@ task buildSoy(type: JavaExec) {
     delete outputPath
 
     def templates = fileTree("data/template")
-    def templateDirPath = templates.dir.path
+    def templateDirPath = templates.dir.path + '/'
     def basePath = Paths.get(templateDirPath)
 
     def soyFiles = templates
             .filter { it.isFile() }.files.path
             .collect { basePath.relativize(Paths.get(it)).toString() }
+            .sort()
     args = ["--inputPrefix", templateDirPath, "--srcs", String.join(',', soyFiles),
             "--outputDirectory", outputPath,
-            "--javaClassNameSource", "namespace",
+            "--javaClassNameSource", "filename",
             "--javaPackage", packageName]
 }
 
