@@ -5,12 +5,15 @@ import com.czbix.klog.database.dao.UserDao
 import com.czbix.klog.utils.now
 import com.czbix.klog.utils.or
 import com.google.common.collect.ImmutableMap
+import com.google.common.io.CharStreams
 import org.apache.http.Consts
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.HttpRequest
 import org.apache.http.client.utils.URLEncodedUtils
+import org.apache.http.entity.ContentType
 import org.apache.http.protocol.HttpContext
 import org.apache.http.protocol.HttpCoreContext
+import java.io.InputStreamReader
 import java.net.HttpCookie
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -48,11 +51,20 @@ val HttpContext.postData: Map<String, String>
                 return Collections.emptyMap()
             }
 
-            val data = URLEncodedUtils.parse(request.entity)
-            val builder = ImmutableMap.builder<String, String>()
-            data.forEach { builder.put(it.name, it.value) }
+            // URLEncodedUtils.parse use ISO_8859_1 as charset by default,
+            // pass string and charset explicitly
+            val entity = request.entity
+            if (ContentType.get(entity).mimeType == URLEncodedUtils.CONTENT_TYPE) {
+                var str = entity.content.use {
+                    InputStreamReader(it, Charsets.UTF_8).use {
+                        CharStreams.toString(it)
+                    }
+                }
 
-            map = builder.build()
+                val data = URLEncodedUtils.parse(str, Charsets.UTF_8)
+                map = mapOf(*data.map { it.name to it.value }.toTypedArray())
+            }
+
             setAttribute(HttpContextKey.POST_DATA.key, map)
         }
 

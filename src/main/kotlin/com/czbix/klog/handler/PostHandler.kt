@@ -3,10 +3,11 @@ package com.czbix.klog.handler
 import com.czbix.klog.database.dao.PostDao
 import com.czbix.klog.http.NStringEntityEx
 import com.czbix.klog.template.SoyHelper
+import com.czbix.klog.template.SoyHelper.setData
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
-import com.czbix.klog.soy.Post1SoyInfo as PostSoyInfo
+import com.czbix.klog.soy.Post2SoyInfo as PostSoyInfo
 
 class PostHandler : BaseRequestHandler() {
     override fun getPattern() = "/post/*"
@@ -22,7 +23,7 @@ class PostHandler : BaseRequestHandler() {
             )
         }
 
-        response.entity = NStringEntityEx.fromHtml(SoyHelper.render(PostSoyInfo.POST,
-                PostSoyInfo.PostSoyTemplateInfo.POST, postData))
+        response.entity = NStringEntityEx.fromSoy(SoyHelper.newRenderer(PostSoyInfo.POST, context)
+                .setData(PostSoyInfo.PostSoyTemplateInfo.POST, postData))
     }
 }

@@ -14,7 +14,7 @@
         {else}
             <p>No posts!</p>
         {/if}
-    {call klog.footer /}
+    {call .footer /}
 {/template}
 
 {template .addPost}
@@ -26,5 +26,12 @@
         <textarea type="text" name="text"></textarea><br>
         <input type="submit">
     </form>
-    {call klog.footer /}
+    {call .footer /}
+{/template}
+
+{template .footer}
+<p>
+    <a href="/admin/post/new">New post</a>
+</p>
+{call klog.footer /}
 {/template}

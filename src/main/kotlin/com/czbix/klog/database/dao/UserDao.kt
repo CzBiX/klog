@@ -58,11 +58,6 @@ object UserDao {
         fun validatePwd(pwd: String): Boolean {
             return password.equals(pwd)
         }
-
-        fun toSoy(): SoyValue = SoyMapData(mapOf(
-                "username" to username,
-                "displayName" to displayName
-        ))
     }
 
     private class UserResultSetHandler : ResultSetHandler<User?> {

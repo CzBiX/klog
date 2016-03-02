@@ -8,7 +8,7 @@ import com.czbix.klog.template.SoyHelper.setData
 import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.protocol.HttpContext
-import com.czbix.klog.soy.Post2SoyInfo as PostSoyInfo
+import com.czbix.klog.soy.Post1SoyInfo as PostSoyInfo
 
 class PostHandler : BackendHandler() {
     override fun getPattern() = "/admin/post/*"
@@ -16,7 +16,7 @@ class PostHandler : BackendHandler() {
     override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
         val action = getAction(request)
         when (action) {
-            "add" ->
+            "new" ->
                 response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.ADD_POST, context).render())
             "list" ->
                 response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(PostSoyInfo.LIST_POST, context)

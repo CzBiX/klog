@@ -19,7 +19,7 @@ class SoyCustomConverter : SoyCustomValueConverter {
         }
     }
 
-    private inline fun <reified T: Any> getFieldMap(obj: T): Map<String, Any> {
+    private inline fun <reified T: Any> getFieldMap(obj: T): Map<String, Any?> {
         val cls = T::class.java
         val fields = classFieldsCache.getOrPut(cls, {
             cls.declaredMethods.filter { it.name.startsWith("get") && it.parameters.isEmpty() }
@@ -28,7 +28,7 @@ class SoyCustomConverter : SoyCustomValueConverter {
             return mapOf()
         }
 
-        val map = mutableMapOf<String, Any>()
+        val map = mutableMapOf<String, Any?>()
         fields.forEach {
             val name = it.name.substringAfter("get").decapitalize()
             val value = it.invoke(obj)

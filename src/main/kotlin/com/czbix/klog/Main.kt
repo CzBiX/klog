@@ -7,7 +7,6 @@ import com.czbix.klog.handler.NotFoundHandler
 import com.czbix.klog.handler.PostHandler
 import com.czbix.klog.handler.UserHandler
 import com.czbix.klog.handler.backend.AdminHandler
-import com.czbix.klog.handler.backend.PostHandler as BackendPostHandler
 import com.czbix.klog.http.interceptor.RequestCookies
 import com.czbix.klog.http.interceptor.ResponseCookies
 import com.czbix.klog.http.interceptor.ResponseEtag
@@ -18,6 +17,7 @@ import org.apache.http.impl.nio.bootstrap.ServerBootstrap
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper
 import java.util.concurrent.TimeUnit
+import com.czbix.klog.handler.backend.PostHandler as BackendPostHandler
 
 class Main {
     companion object {
@@ -36,14 +36,13 @@ class Main {
         Database.initDatabase()
         initSoyHelper()
 
-        val ioReactorConfig = IOReactorConfig.custom().run {
+        val ioReactorConfig = IOReactorConfig.custom().apply {
             setSoReuseAddress(true)
-            build()
-        }
+        }.build()
 
         val handlerMapper = buildHandlerMapper()
 
-        httpServer = ServerBootstrap.bootstrap().run {
+        httpServer = ServerBootstrap.bootstrap().apply {
             setListenerPort(Config.getPort())
             setIOReactorConfig(ioReactorConfig)
             setServerInfo("Klog Server")
@@ -55,13 +54,12 @@ class Main {
 
             setHandlerMapper(handlerMapper)
             setExceptionLogger(org.apache.http.ExceptionLogger.STD_ERR)
-            create()
-        }
+        }.create()
     }
 
     fun initSoyHelper() {
         SoyHelper.addIjDataHook("user") {
-            it.user?.toSoy()
+            it.user
         }
     }
 

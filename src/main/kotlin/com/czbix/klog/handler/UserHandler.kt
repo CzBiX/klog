@@ -17,7 +17,7 @@ class UserHandler : BaseRequestHandler() {
     override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
         val user = context.user
         val html = if (user != null) {
-            SoyHelper.newRenderer(UserSoyInfo.SIGNED, context).setData("user", user.toSoy()).render()
+            SoyHelper.newRenderer(UserSoyInfo.SIGNED, context).setData("user", user).render()
         } else {
             SoyHelper.render(UserSoyInfo.SIGN_IN)
         }
@@ -29,13 +29,14 @@ class UserHandler : BaseRequestHandler() {
         val user = UserDao.get(params["username"]!!)
         val pwd = params["password"]!!
 
-        val html = if (user == null || !user.validatePwd(pwd)) {
-            SoyHelper.render(UserSoyInfo.SIGN_IN, UserSoyInfo.SignInSoyTemplateInfo.MSG, "username or password is invalid!")
+        val renderer = if (user == null || !user.validatePwd(pwd)) {
+            SoyHelper.newRenderer(UserSoyInfo.SIGN_IN, context)
+                    .setData(UserSoyInfo.SignInSoyTemplateInfo.MSG, "username or password is invalid!")
         } else {
             context.user = user
-            SoyHelper.render(UserSoyInfo.SIGNED, "user", user.toSoy())
+            SoyHelper.newRenderer(UserSoyInfo.SIGNED, context).setData("user", user)
         }
 
-        response.entity = NStringEntityEx.fromHtml(html)
+        response.entity = NStringEntityEx.fromSoy(renderer)
     }
 }

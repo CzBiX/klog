@@ -1,5 +1,6 @@
 package com.czbix.klog.http
 
+import com.google.template.soy.tofu.SoyTofu
 import org.apache.http.Consts
 import org.apache.http.entity.ContentType
 import org.apache.http.nio.entity.NStringEntity
@@ -19,6 +20,10 @@ class NStringEntityEx(html: String, contentType: ContentType) : NStringEntity(ht
 
         fun fromJson(json: String): NStringEntity {
             return NStringEntity(json, ContentType.APPLICATION_JSON)
+        }
+
+        fun fromSoy(renderer: SoyTofu.Renderer): NStringEntity {
+            return NStringEntity(renderer.render(), CONTENT_TYPE_HTML)
         }
     }
 }

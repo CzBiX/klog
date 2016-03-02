@@ -19,7 +19,7 @@ object SoyHelper {
         return Config.TEMPLATE_PATH.toString()
     }
     private val soyFileSet = init(getTemplatePath())
-    private val ijDataHook = mutableMapOf<String, (HttpContext) -> SoyValue?>()
+    private val ijDataHook = mutableMapOf<String, (HttpContext) -> Any?>()
 
     private val _soy by lazy {
         soyFileSet.compileToTofu()
@@ -52,7 +52,7 @@ object SoyHelper {
     }
 
     fun newRenderer(template: SoyTemplateInfo, context: HttpContext): SoyTofu.Renderer {
-        val ijData = SoyMapData(ijDataHook.map { it.key to it.value(context)}.toMap())
+        val ijData = ijDataHook.map { it.key to it.value(context)}.toMap()
         return soy.newRenderer(template).setIjData(ijData)
     }
 
@@ -60,19 +60,7 @@ object SoyHelper {
         return newRenderer(template).render()
     }
 
-    fun render(template: SoyTemplateInfo, name: String, value: Any): String {
-        return newRenderer(template)
-                .setData(SoyMapData(name, value))
-                .render()
-    }
-
-    fun render(template: SoyTemplateInfo, data: Map<String, Any>): String {
-        return newRenderer(template)
-                .setData(data)
-                .render()
-    }
-
-    fun addIjDataHook(name: String, hook: (HttpContext) -> SoyValue?) {
+    fun addIjDataHook(name: String, hook: (HttpContext) -> Any?) {
         ijDataHook[name] = hook
     }
 
