@@ -32,7 +32,9 @@ task buildSoy(type: JavaExec) {
 
     def packageName = "com.czbix.klog.soy"
     def outputPath = "src/main/java/" + packageName.replace('.', '/')
-    delete outputPath
+    doFirst {
+        delete outputPath
+    }
 
     def templates = fileTree("data/template")
     def templateDirPath = templates.dir.path + '/'
