@@ -2,95 +2,65 @@ package com.czbix.klog.http
 
 import com.czbix.klog.common.Config
 import com.czbix.klog.database.dao.UserDao
+import com.czbix.klog.http.HttpContextKey.*
+import com.czbix.klog.http.SecureCookie.secureValue
+import com.czbix.klog.http.core.DefaultHttpPostRequestDecoder
 import com.czbix.klog.utils.now
-import com.czbix.klog.utils.or
-import com.google.common.collect.ImmutableMap
-import com.google.common.io.CharStreams
-import org.apache.http.Consts
-import org.apache.http.HttpEntityEnclosingRequest
-import org.apache.http.HttpRequest
-import org.apache.http.client.utils.URLEncodedUtils
-import org.apache.http.entity.ContentType
-import org.apache.http.protocol.HttpContext
-import org.apache.http.protocol.HttpCoreContext
-import java.io.InputStreamReader
-import java.net.HttpCookie
+import io.netty.handler.codec.http.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-inline fun <reified T> HttpContext.getAttributeWithType(key: String): T {
-    return getAttribute(key) as T
+inline fun <reified T> HttpContext.getWithType(key: HttpContextKey): T? {
+    return get(key) as T?
 }
+
+inline fun <reified T : Any> HttpContext.getWithType(key: HttpContextKey, block: () -> T?): T? {
+    val value = get(key) as T?
+    return value ?: block()?.let {
+        put(key, it)
+        it
+    }
+}
+
+val HttpContext.args: Map<String, String>
+    get() {
+        return getWithType(HANDLER_ARGS)!!
+    }
 
 val HttpContext.request: HttpRequest
     get() {
-        return getAttributeWithType(HttpCoreContext.HTTP_REQUEST)
+        return getWithType(REQUEST)!!
     }
 
-val HttpContext.queryData: Map<String, String>
+val HttpContext.postData: DefaultHttpPostRequestDecoder
     get() {
-        val cachedData = getAttributeWithType<Map<String, String>>(HttpContextKey.QUERY_DATA.key)
-        return cachedData.or {
-            val uri = request.requestLine.uri
-            val data = URLEncodedUtils.parse(uri, Consts.UTF_8)
-                    .fold(ImmutableMap.builder<String, String>(), { builder, pair ->
-                        builder.apply { put(pair.name, pair.value) }
-                    }).build()
-            setAttribute(HttpContextKey.QUERY_DATA.key, data)
-
-            return@or data
-        }
+        return DefaultHttpPostRequestDecoder(request)
     }
 
-val HttpContext.postData: Map<String, String>
+val HttpContext.cookies: Map<String, Cookie>
     get() {
-        var map = getAttributeWithType<Map<String, String>?>(HttpContextKey.POST_DATA.key)
-        if (map == null) {
-            val request = request
-            if (request !is HttpEntityEnclosingRequest) {
-                return Collections.emptyMap()
-            }
-
-            // URLEncodedUtils.parse use ISO_8859_1 as charset by default,
-            // pass string and charset explicitly
-            val entity = request.entity
-            if (ContentType.get(entity).mimeType == URLEncodedUtils.CONTENT_TYPE) {
-                var str = entity.content.use {
-                    InputStreamReader(it, Charsets.UTF_8).use {
-                        CharStreams.toString(it)
-                    }
-                }
-
-                val data = URLEncodedUtils.parse(str, Charsets.UTF_8)
-                map = mapOf(*data.map { it.name to it.value }.toTypedArray())
-            }
-
-            setAttribute(HttpContextKey.POST_DATA.key, map)
-        }
-
-        return map!!
-    }
-
-val HttpContext.cookies: Map<String, HttpCookie>
-    get() {
-        return getAttributeWithType<Map<String, HttpCookie>?>(HttpContextKey.COOKIES.key).or(mapOf())
+        return getWithType<Map<String, Cookie>>(COOKIES) {
+            val cookiesHeader = request.headers().get(HttpHeaderNames.COOKIE)?.toString()
+            if (cookiesHeader == null) return@getWithType mapOf()
+            ServerCookieDecoder.decode(cookiesHeader).associateBy { it.name() }
+        }!!
     }
 
 fun HttpContext.setCookie(name: String, value: String?, domain: String? = null, expiresDate: Date? = null,
                           path: String = "/", expiresDays: Int? = null, httpOnly: Boolean = true,
                           secureValue: Boolean = false) {
-    var cookies = getAttributeWithType<MutableMap<String, HttpCookie>?>(HttpContextKey.COOKIES_SET.key)
+    var cookies = getWithType<MutableMap<String, Cookie>>(COOKIES_SET)
     if (cookies == null) {
         cookies = mutableMapOf()
-        setAttribute(HttpContextKey.COOKIES_SET.key, cookies)
+        this[COOKIES_SET] = cookies
     }
 
-    val cookie = HttpCookie(name, value).let {
+    val cookie = DefaultCookie(name, value).let {
         if (secureValue) {
             it.secureValue = value
         }
         if (domain != null) {
-            it.domain = domain
+            it.setDomain(domain)
         }
 
         var maxAge = if (expiresDays != null && expiresDate == null) {
@@ -98,12 +68,12 @@ fun HttpContext.setCookie(name: String, value: String?, domain: String? = null, 
         } else if (expiresDate != null) {
             TimeUnit.MILLISECONDS.toSeconds(expiresDate.time - now())
         } else 0
-        it.maxAge = maxAge
+        it.setMaxAge(maxAge)
 
-        it.path = path
+        it.setPath(path)
         it.isHttpOnly = httpOnly
         if (Config.isCookieSecure()) {
-            it.secure = true
+            it.isSecure = true
         }
         return@let it
     }
@@ -113,21 +83,27 @@ fun HttpContext.setCookie(name: String, value: String?, domain: String? = null, 
 
 var HttpContext.user: UserDao.User?
     get() {
-        var user = getAttributeWithType<UserDao.User?>(HttpContextKey.USER.key)
+        var user = getWithType<UserDao.User?>(USER)
         if (user == null) {
-            val username = cookies["username"]?.secureValue ?: return null
+            val username = cookies["username"]?.secureValue
+            if (username == null) {
+                return null
+            }
 
             user = UserDao.get(username)
-            setAttribute(HttpContextKey.USER.key, user)
+            user?.let {
+                this[USER] = it
+            }
         }
 
         return user
     }
     set(value) {
-        setAttribute(HttpContextKey.USER.key, value)
         if (value == null) {
+            remove(USER)
             setCookie("username", null, expiresDays = -365)
         } else {
+            this[USER] = value
             setCookie("username", value.username, expiresDays = 365, secureValue = true)
         }
     }

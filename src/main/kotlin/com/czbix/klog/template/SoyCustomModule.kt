@@ -5,7 +5,7 @@ import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.google.template.soy.data.SoyCustomValueConverter
 
-class SoyCustomConverterModule : AbstractModule() {
+class SoyCustomModule : AbstractModule() {
     override fun configure() {
     }
 

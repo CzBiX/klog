@@ -1,40 +1,43 @@
 package com.czbix.klog.http.interceptor
 
+import com.czbix.klog.http.HttpContext
+import com.czbix.klog.http.HttpResponseInterceptor
 import com.czbix.klog.http.request
-import org.apache.http.*
-import org.apache.http.protocol.HttpContext
-import org.apache.http.protocol.HttpCoreContext
-import org.apache.http.util.EntityUtils
+import com.czbix.klog.utils.toHexString
+import io.netty.handler.codec.http.FullHttpResponse
+import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.HttpResponse
+import io.netty.handler.codec.http.HttpResponseStatus
 import java.util.zip.CRC32
 
 class ResponseEtag : HttpResponseInterceptor {
     companion object {
-        val MAX_SIZE_LIMIT = 8192
+        const val MAX_SIZE_LIMIT = 8192
     }
 
     override fun process(response: HttpResponse, context: HttpContext) {
-        if (response.statusLine.statusCode != HttpStatus.SC_OK) return
+        if (response.status() != HttpResponseStatus.OK) return
         val request = context.request
 
-        val entity = response.entity
-        if (entity != null
-                && entity.isRepeatable
-                && entity.contentType.value.startsWith("text/")
-                && entity.contentLength < MAX_SIZE_LIMIT
-                && !response.containsHeader(HttpHeaders.ETAG)) {
+        if (response !is FullHttpResponse) return
+        val content = response.content()
+        if (content.readableBytes() in 0..MAX_SIZE_LIMIT
+                && (response.headers().get(HttpHeaderNames.CONTENT_TYPE) ?: "").startsWith("text/")) {
             val crc = CRC32()
-            val buf = EntityUtils.toByteArray(entity)
+            val buf = content.array()
             crc.update(buf)
 
             val value = crc.value
-            val etag = java.lang.Long.toHexString(value);
+            val etag = value.toHexString()
 
-            val clientEtag = request.getLastHeader(HttpHeaders.IF_NONE_MATCH)?.value
+            val clientEtag = request.headers().get(HttpHeaderNames.IF_NONE_MATCH)
             if (etag.equals(clientEtag)) {
-                response.setStatusCode(HttpStatus.SC_NOT_MODIFIED)
+                // don't return content
+                content.clear()
+                response.setStatus(HttpResponseStatus.NOT_MODIFIED)
             }
 
-            response.addHeader(HttpHeaders.ETAG, etag)
+            response.headers().add(HttpHeaderNames.ETAG, etag)
         }
     }
 }

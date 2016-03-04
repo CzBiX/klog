@@ -1,15 +1,13 @@
 package com.czbix.klog.template
 
 import com.czbix.klog.common.Config
+import com.czbix.klog.http.HttpContext
 import com.google.inject.Guice
 import com.google.template.soy.SoyFileSet
 import com.google.template.soy.SoyModule
-import com.google.template.soy.data.SoyMapData
-import com.google.template.soy.data.SoyValue
 import com.google.template.soy.parseinfo.SoyTemplateInfo
 import com.google.template.soy.shared.SoyAstCache
 import com.google.template.soy.tofu.SoyTofu
-import org.apache.http.protocol.HttpContext
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -30,7 +28,7 @@ object SoyHelper {
         }
 
     private fun init(path: String): SoyFileSet {
-        val injector = Guice.createInjector(SoyModule(), SoyCustomConverterModule())
+        val injector = Guice.createInjector(SoyModule(), SoyCustomModule())
         val builder = injector.getInstance(SoyFileSet.Builder::class.java)
 
         if (IS_DEBUG) {
@@ -52,7 +50,7 @@ object SoyHelper {
     }
 
     fun newRenderer(template: SoyTemplateInfo, context: HttpContext): SoyTofu.Renderer {
-        val ijData = ijDataHook.map { it.key to it.value(context)}.toMap()
+        val ijData = ijDataHook.mapValues { it.value(context) }
         return soy.newRenderer(template).setIjData(ijData)
     }
 

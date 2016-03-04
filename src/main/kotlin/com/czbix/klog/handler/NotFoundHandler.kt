@@ -1,18 +1,17 @@
 package com.czbix.klog.handler
 
-import com.czbix.klog.template.SoyHelper
-import com.czbix.klog.http.NStringEntityEx
+import com.czbix.klog.http.core.DefaultHttpResponse
+import com.czbix.klog.http.HttpContext
 import com.czbix.klog.soy.NotFoundSoyInfo
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
-import org.apache.http.HttpStatus
-import org.apache.http.protocol.HttpContext
+import com.czbix.klog.template.SoyHelper
+import io.netty.handler.codec.http.HttpRequest
+import io.netty.handler.codec.http.HttpResponseStatus
 
-class NotFoundHandler : BaseRequestHandler() {
-    override fun getPattern() = "/*"
+class NotFoundHandler : BaseHttpHandler() {
+    override fun getPattern() = "/404"
 
-    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
-        response.setStatusCode(HttpStatus.SC_NOT_FOUND)
-        response.entity = NStringEntityEx.fromHtml(SoyHelper.render(NotFoundSoyInfo.NOT_FOUND))
+    override fun get(request: HttpRequest, context: HttpContext): DefaultHttpResponse {
+        val renderer = SoyHelper.newRenderer(NotFoundSoyInfo.NOT_FOUND, context)
+        return newHtmlResponse(renderer.render(), HttpResponseStatus.NOT_FOUND)
     }
 }

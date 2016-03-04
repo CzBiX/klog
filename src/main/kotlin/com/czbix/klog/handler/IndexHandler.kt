@@ -1,20 +1,20 @@
 package com.czbix.klog.handler
 
 import com.czbix.klog.database.dao.PostDao
-import com.czbix.klog.http.NStringEntityEx
+import com.czbix.klog.http.core.DefaultHttpResponse
+import com.czbix.klog.http.HttpContext
 import com.czbix.klog.soy.Index2SoyInfo.IndexSoyTemplateInfo
 import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.template.SoyHelper.setData
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
-import org.apache.http.protocol.HttpContext
+import io.netty.handler.codec.http.HttpRequest
+import io.netty.handler.codec.http.HttpResponseStatus
 import com.czbix.klog.soy.Index2SoyInfo as IndexSoyInfo
 
 
-class IndexHandler : BaseRequestHandler() {
+class IndexHandler : BaseHttpHandler() {
     override fun getPattern() = "/"
 
-    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
+    override fun get(request: HttpRequest, context: HttpContext): DefaultHttpResponse {
         val posts = PostDao.getAll().map {
             mapOf(
                     "id" to it.id,
@@ -24,6 +24,6 @@ class IndexHandler : BaseRequestHandler() {
         }
 
         val render = SoyHelper.newRenderer(IndexSoyInfo.INDEX, context).setData(IndexSoyTemplateInfo.POSTS, posts)
-        response.entity = NStringEntityEx.fromHtml(render.render())
+        return newHtmlResponse(render.render())
     }
 }

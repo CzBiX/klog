@@ -1,18 +1,17 @@
 package com.czbix.klog.handler.backend
 
-import com.czbix.klog.handler.BaseRequestHandler
+import com.czbix.klog.handler.BaseHttpHandler
+import com.czbix.klog.http.HttpContext
+import com.czbix.klog.http.core.DefaultHttpResponse
 import com.czbix.klog.http.user
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
-import org.apache.http.protocol.HttpContext
+import io.netty.handler.codec.http.HttpRequest
 
-abstract class BackendHandler : BaseRequestHandler() {
-    override fun handleRequest(request: HttpRequest, response: HttpResponse, context: HttpContext) {
+abstract class BackendHandler : BaseHttpHandler() {
+    override fun handleRequest(request: HttpRequest, context: HttpContext): DefaultHttpResponse {
         if (context.user == null) {
-            accessDenied(response, context)
-            return
+            return accessDenied()
         }
 
-        super.handleRequest(request, response, context)
+        return super.handleRequest(request, context)
     }
 }

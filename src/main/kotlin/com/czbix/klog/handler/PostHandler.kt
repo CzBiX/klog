@@ -1,29 +1,22 @@
 package com.czbix.klog.handler
 
 import com.czbix.klog.database.dao.PostDao
-import com.czbix.klog.http.NStringEntityEx
+import com.czbix.klog.http.HttpContext
+import com.czbix.klog.http.args
+import com.czbix.klog.http.core.DefaultHttpResponse
+import com.czbix.klog.soy.Post2SoyInfo
 import com.czbix.klog.template.SoyHelper
 import com.czbix.klog.template.SoyHelper.setData
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
-import org.apache.http.protocol.HttpContext
-import com.czbix.klog.soy.Post2SoyInfo as PostSoyInfo
+import io.netty.handler.codec.http.HttpRequest
 
-class PostHandler : BaseRequestHandler() {
-    override fun getPattern() = "/post/*"
+class PostHandler : BaseHttpHandler() {
+    override fun getPattern() = "/post/<id>"
 
-    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
-        val id = request.requestLine.uri.substringAfterLast('/', "").toInt()
-        val post = PostDao.get(id) ?: return NotFoundHandler().get(request, response, context)
-        val postData = post.let {
-            mapOf(
-                    "id" to it.id,
-                    "title" to it.title,
-                    "text" to it.text
-            )
-        }
+    override fun get(request: HttpRequest, context: HttpContext): DefaultHttpResponse {
+        val id = context.args["id"]!!.toInt()
+        val post = PostDao.get(id)!!
 
-        response.entity = NStringEntityEx.fromSoy(SoyHelper.newRenderer(PostSoyInfo.POST, context)
-                .setData(PostSoyInfo.PostSoyTemplateInfo.POST, postData))
+        val render = SoyHelper.newRenderer(Post2SoyInfo.POST, context).setData(Post2SoyInfo.PostSoyTemplateInfo.POST, post)
+        return newHtmlResponse(render.render())
     }
 }

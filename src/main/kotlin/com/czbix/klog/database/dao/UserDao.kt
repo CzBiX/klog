@@ -1,9 +1,6 @@
 package com.czbix.klog.database.dao
 
 import com.czbix.klog.database.Database.runQuery
-import com.czbix.klog.utils.or
-import com.google.template.soy.data.SoyMapData
-import com.google.template.soy.data.SoyValue
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
 import java.sql.Connection
@@ -52,7 +49,7 @@ object UserDao {
                     val nickName: String? = null, val password: String) {
         val displayName: String
             get() {
-                return nickName.or(username)
+                return nickName ?: username
             }
 
         fun validatePwd(pwd: String): Boolean {

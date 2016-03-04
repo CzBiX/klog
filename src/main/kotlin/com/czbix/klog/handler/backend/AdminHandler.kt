@@ -1,16 +1,18 @@
 package com.czbix.klog.handler.backend
 
-import com.czbix.klog.http.NStringEntityEx
-import com.czbix.klog.soy.Index1SoyInfo as BackendSoyInfo
+import com.czbix.klog.handler.BaseHttpHandler
+import com.czbix.klog.http.HttpContext
+import com.czbix.klog.http.core.DefaultHttpResponse
 import com.czbix.klog.template.SoyHelper
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
-import org.apache.http.protocol.HttpContext
+import io.netty.handler.codec.http.HttpRequest
+import com.czbix.klog.soy.Index1SoyInfo as BackendSoyInfo
 
-class AdminHandler : BackendHandler() {
+class AdminHandler : BaseHttpHandler() {
     override fun getPattern() = "/admin/"
 
-    override fun get(request: HttpRequest, response: HttpResponse, context: HttpContext) {
-        response.entity = NStringEntityEx.fromHtml(SoyHelper.newRenderer(BackendSoyInfo.INDEX, context).render())
+    override fun get(request: HttpRequest, context: HttpContext): DefaultHttpResponse {
+        return DefaultHttpResponse().apply {
+            fullContent = newContent(SoyHelper.newRenderer(BackendSoyInfo.INDEX, context).render())
+        }
     }
 }
